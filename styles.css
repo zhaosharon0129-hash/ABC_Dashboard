@@ -1,89 +1,326 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ABC Logistics Inventory Command Center — Dashboard</title>
-  <link rel="stylesheet" href="styles.css" />
+:root{
+  --bg: #0b1220;
+  --panel: #101a30;
+  --panel-2: #0f1930;
+  --text: #e8edf6;
+  --muted: #a9b3c7;
+  --border: rgba(255,255,255,.10);
+  --shadow: 0 12px 28px rgba(0,0,0,.35);
 
-  <!-- Chart.js via CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-  <header class="site-header">
-    <nav class="navbar">
-      <div class="brand">
-        <span class="brand-mark">ABC</span>
-        <span class="brand-title">Logistics Inventory Command Center</span>
-      </div>
-      <ul class="nav-links">
-        <li><a class="active" href="index.html">Dashboard</a></li>
-        <li><a href="about.html">About</a></li>
-      </ul>
-    </nav>
-  </header>
+  --primary: #4f7cff;
+  --primary-2: #2f59ff;
 
-  <main class="container">
-    <section class="card">
-      <h1 class="page-title">Dashboard</h1>
-      <p class="subtext">Track inventory quantities. Low stock is automatically flagged in the chart when quantity is under 10.</p>
+  --danger: #ff4d4d;
+  --ok: #2bd576;
 
-      <form id="inventoryForm" class="form-grid" novalidate>
-        <div class="field">
-          <label for="itemName">Item name</label>
-          <input id="itemName" name="itemName" type="text" placeholder="e.g., Pallets" autocomplete="off" />
-        </div>
+  --radius: 16px;
+  --radius-sm: 12px;
+}
 
-        <div class="field">
-          <label for="quantity">Quantity</label>
-          <input id="quantity" name="quantity" type="number" placeholder="e.g., 25" inputmode="numeric" />
-        </div>
+*{ box-sizing:border-box; }
+html, body{ height:100%; }
 
-        <div class="actions">
-          <button id="addBtn" type="submit" class="btn btn-primary">Add</button>
-          <button id="clearAllBtn" type="button" class="btn btn-ghost">Clear All</button>
-        </div>
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1000px 700px at 20% 10%, rgba(79,124,255,.20), transparent 60%),
+              radial-gradient(900px 600px at 90% 20%, rgba(43,213,118,.14), transparent 55%),
+              var(--bg);
+  color: var(--text);
+}
 
-        <p id="message" class="message" aria-live="polite"></p>
-      </form>
-    </section>
+a{ color: inherit; text-decoration:none; }
+a:hover{ text-decoration: underline; }
 
-    <section class="grid-2">
-      <section class="card">
-        <h2 class="section-title">Inventory Table</h2>
-        <div class="table-wrap">
-          <table class="table" aria-label="Inventory table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th class="num">Quantity</th>
-              </tr>
-            </thead>
-            <tbody id="inventoryTbody">
-              <!-- rows injected by JS -->
-            </tbody>
-          </table>
-        </div>
-        <p class="hint">Duplicate items are blocked (case-insensitive).</p>
-      </section>
+.container{
+  width: min(1100px, calc(100% - 40px));
+  margin: 0 auto;
+}
 
-      <section class="card">
-        <h2 class="section-title">Quantity Visualization</h2>
-        <div class="chart-wrap">
-          <canvas id="inventoryChart" aria-label="Inventory bar chart" role="img"></canvas>
-        </div>
-        <p class="hint">Low stock (quantity &lt; 10) turns the corresponding bar red.</p>
-      </section>
-    </section>
-  </main>
+.site-header{
+  position: sticky;
+  top:0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  background: rgba(11,18,32,.65);
+  border-bottom: 1px solid var(--border);
+}
 
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <span>© <span id="year"></span> ABC Logistics</span>
-      <span class="muted">Client-side demo (localStorage persistence)</span>
-    </div>
-  </footer>
+.navbar{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 14px 20px;
+}
 
-  <script src="app.js"></script>
-</body>
-</html>
+.brand{
+  display:flex;
+  align-items: baseline;
+  gap: 10px;
+  letter-spacing: .2px;
+}
+
+.brand-mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width: 40px;
+  height: 28px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), rgba(79,124,255,.4));
+  font-weight: 800;
+}
+
+.brand-title{
+  font-weight: 650;
+  color: var(--text);
+  opacity: .95;
+}
+
+.nav-links{
+  list-style:none;
+  display:flex;
+  gap: 14px;
+  margin:0;
+  padding:0;
+}
+
+.nav-links a{
+  display:inline-block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: var(--muted);
+}
+
+.nav-links a.active{
+  background: rgba(79,124,255,.18);
+  color: var(--text);
+  border: 1px solid rgba(79,124,255,.30);
+}
+
+.nav-links a:hover{
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  text-decoration:none;
+}
+
+main{
+  padding: 26px 0 34px;
+}
+
+.card{
+  background: linear-gradient(180deg, rgba(16,26,48,.95), rgba(16,26,48,.75));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 18px;
+}
+
+.page-title{
+  margin: 0 0 6px;
+  font-size: 28px;
+  letter-spacing: .2px;
+}
+
+.subtext{
+  margin: 0 0 18px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.section-title{
+  margin: 0 0 12px;
+  font-size: 18px;
+  color: rgba(232,237,246,.95);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns: 1fr 220px;
+  gap: 14px;
+  align-items:end;
+}
+
+.field label{
+  display:block;
+  margin: 0 0 8px;
+  color: rgba(232,237,246,.92);
+  font-size: 14px;
+}
+
+.field input{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(15,25,48,.65);
+  color: var(--text);
+  outline:none;
+}
+
+.field input:focus{
+  border-color: rgba(79,124,255,.55);
+  box-shadow: 0 0 0 3px rgba(79,124,255,.18);
+}
+
+.actions{
+  display:flex;
+  gap: 10px;
+  justify-content:flex-end;
+}
+
+.btn{
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: var(--radius-sm);
+  padding: 12px 12px;
+  cursor:pointer;
+  font-weight: 650;
+  letter-spacing: .2px;
+  transition: transform .05s ease, background .15s ease, border-color .15s ease;
+  min-width: 110px;
+}
+
+.btn:active{ transform: translateY(1px); }
+
+.btn-primary{
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  border-color: rgba(79,124,255,.65);
+  color: #fff;
+}
+
+.btn-primary:hover{
+  background: linear-gradient(135deg, rgba(79,124,255,.92), rgba(47,89,255,.95));
+}
+
+.btn-ghost{
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+}
+
+.btn-ghost:hover{
+  background: rgba(255,255,255,.10);
+}
+
+.message{
+  grid-column: 1 / -1;
+  min-height: 20px;
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.message.error{ color: var(--danger); }
+.message.success{ color: var(--ok); }
+
+.grid-2{
+  margin-top: 16px;
+  display:grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 16px;
+}
+
+.table-wrap{
+  overflow:auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+.table{
+  width:100%;
+  border-collapse: collapse;
+  background: rgba(15,25,48,.55);
+}
+
+.table th, .table td{
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  font-size: 14px;
+}
+
+.table th{
+  text-align:left;
+  color: rgba(232,237,246,.92);
+  background: rgba(255,255,255,.04);
+  position: sticky;
+  top: 0;
+}
+
+.table td{
+  color: rgba(232,237,246,.92);
+}
+
+.table .num{
+  text-align:right;
+  width: 140px;
+}
+
+.hint{
+  margin: 10px 2px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.chart-wrap{
+  width:100%;
+  height: 320px;
+}
+
+.site-footer{
+  border-top: 1px solid var(--border);
+  background: rgba(11,18,32,.65);
+}
+
+.footer-inner{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 14px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.muted{ color: var(--muted); }
+
+.profile{
+  display:grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.profile .badge{
+  display:inline-flex;
+  gap: 10px;
+  align-items:center;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(232,237,246,.92);
+  font-size: 14px;
+}
+
+.kv{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.kv:last-child{ border-bottom:none; }
+
+@media (max-width: 900px){
+  .form-grid{
+    grid-template-columns: 1fr;
+  }
+  .actions{
+    justify-content:flex-start;
+  }
+  .grid-2{
+    grid-template-columns: 1fr;
+  }
+  .profile{
+    grid-template-columns: 1fr;
+  }
+}

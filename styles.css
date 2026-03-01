@@ -1,20 +1,20 @@
 :root{
-  --bg: #0b1220;
-  --panel: #101a30;
-  --panel-2: #0f1930;
-  --text: #e8edf6;
-  --muted: #a9b3c7;
-  --border: rgba(255,255,255,.10);
-  --shadow: 0 12px 28px rgba(0,0,0,.35);
+  /* Light analytics dashboard palette */
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: rgba(15, 23, 42, 0.10);
 
-  --primary: #4f7cff;
-  --primary-2: #2f59ff;
+  --primary: #2563eb;      /* blue */
+  --primary-2: #1d4ed8;    /* darker blue */
 
-  --danger: #ff4d4d;
-  --ok: #2bd576;
+  --danger: #ef4444;       /* red */
+  --ok: #16a34a;           /* green */
 
-  --radius: 16px;
-  --radius-sm: 12px;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
 }
 
 *{ box-sizing:border-box; }
@@ -22,27 +22,26 @@ html, body{ height:100%; }
 
 body{
   margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background: radial-gradient(1000px 700px at 20% 10%, rgba(79,124,255,.20), transparent 60%),
-              radial-gradient(900px 600px at 90% 20%, rgba(43,213,118,.14), transparent 55%),
-              var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background: var(--bg);
   color: var(--text);
 }
 
 a{ color: inherit; text-decoration:none; }
-a:hover{ text-decoration: underline; }
+a:hover{ text-decoration:none; }
 
 .container{
-  width: min(1100px, calc(100% - 40px));
+  width: min(1120px, calc(100% - 40px));
   margin: 0 auto;
 }
 
+/* Top bar like an analytics header */
 .site-header{
   position: sticky;
   top:0;
   z-index: 10;
+  background: rgba(255,255,255,.92);
   backdrop-filter: blur(10px);
-  background: rgba(11,18,32,.65);
   border-bottom: 1px solid var(--border);
 }
 
@@ -55,61 +54,63 @@ a:hover{ text-decoration: underline; }
 
 .brand{
   display:flex;
-  align-items: baseline;
+  align-items:center;
   gap: 10px;
-  letter-spacing: .2px;
 }
 
 .brand-mark{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width: 40px;
-  height: 28px;
+  width: 42px;
+  height: 30px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), rgba(79,124,255,.4));
+  background: linear-gradient(135deg, var(--primary), rgba(37,99,235,.25));
+  color: #fff;
   font-weight: 800;
+  letter-spacing: .4px;
 }
 
 .brand-title{
-  font-weight: 650;
+  font-weight: 700;
   color: var(--text);
-  opacity: .95;
 }
 
 .nav-links{
   list-style:none;
   display:flex;
-  gap: 14px;
+  gap: 10px;
   margin:0;
   padding:0;
 }
 
 .nav-links a{
   display:inline-block;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: 10px;
   color: var(--muted);
+  border: 1px solid transparent;
 }
 
 .nav-links a.active{
-  background: rgba(79,124,255,.18);
-  color: var(--text);
-  border: 1px solid rgba(79,124,255,.30);
+  color: var(--primary);
+  background: rgba(37,99,235,.08);
+  border-color: rgba(37,99,235,.18);
 }
 
 .nav-links a:hover{
-  background: rgba(255,255,255,.06);
+  background: rgba(15,23,42,.04);
   color: var(--text);
-  text-decoration:none;
 }
 
+/* Main layout spacing */
 main{
-  padding: 26px 0 34px;
+  padding: 22px 0 30px;
 }
 
+/* Cards like Wix/analytics dashboards */
 .card{
-  background: linear-gradient(180deg, rgba(16,26,48,.95), rgba(16,26,48,.75));
+  background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -118,22 +119,24 @@ main{
 
 .page-title{
   margin: 0 0 6px;
-  font-size: 28px;
+  font-size: 26px;
   letter-spacing: .2px;
 }
 
 .subtext{
-  margin: 0 0 18px;
+  margin: 0 0 16px;
   color: var(--muted);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .section-title{
   margin: 0 0 12px;
-  font-size: 18px;
-  color: rgba(232,237,246,.95);
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(15,23,42,.92);
 }
 
+/* Form grid */
 .form-grid{
   display:grid;
   grid-template-columns: 1fr 220px;
@@ -144,25 +147,27 @@ main{
 .field label{
   display:block;
   margin: 0 0 8px;
-  color: rgba(232,237,246,.92);
-  font-size: 14px;
+  color: rgba(15,23,42,.80);
+  font-size: 13px;
+  font-weight: 650;
 }
 
 .field input{
   width:100%;
   padding: 12px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(15,25,48,.65);
+  border: 1px solid rgba(15,23,42,.14);
+  background: #fff;
   color: var(--text);
   outline:none;
 }
 
 .field input:focus{
-  border-color: rgba(79,124,255,.55);
-  box-shadow: 0 0 0 3px rgba(79,124,255,.18);
+  border-color: rgba(37,99,235,.45);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.16);
 }
 
+/* Buttons */
 .actions{
   display:flex;
   gap: 10px;
@@ -170,12 +175,11 @@ main{
 }
 
 .btn{
-  border: 1px solid rgba(255,255,255,.14);
+  border: 1px solid rgba(15,23,42,.14);
   border-radius: var(--radius-sm);
-  padding: 12px 12px;
+  padding: 12px 14px;
   cursor:pointer;
-  font-weight: 650;
-  letter-spacing: .2px;
+  font-weight: 700;
   transition: transform .05s ease, background .15s ease, border-color .15s ease;
   min-width: 110px;
 }
@@ -184,34 +188,36 @@ main{
 
 .btn-primary{
   background: linear-gradient(135deg, var(--primary), var(--primary-2));
-  border-color: rgba(79,124,255,.65);
+  border-color: rgba(37,99,235,.55);
   color: #fff;
 }
 
 .btn-primary:hover{
-  background: linear-gradient(135deg, rgba(79,124,255,.92), rgba(47,89,255,.95));
+  filter: brightness(.98);
 }
 
 .btn-ghost{
-  background: rgba(255,255,255,.06);
+  background: #fff;
   color: var(--text);
 }
 
 .btn-ghost:hover{
-  background: rgba(255,255,255,.10);
+  background: rgba(15,23,42,.04);
 }
 
+/* Message */
 .message{
   grid-column: 1 / -1;
   min-height: 20px;
   margin: 2px 0 0;
+  font-size: 13px;
   color: var(--muted);
-  font-size: 14px;
 }
 
 .message.error{ color: var(--danger); }
 .message.success{ color: var(--ok); }
 
+/* Dashboard grid like analytics panels */
 .grid-2{
   margin-top: 16px;
   display:grid;
@@ -219,35 +225,35 @@ main{
   gap: 16px;
 }
 
+/* Table */
 .table-wrap{
   overflow:auto;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,.10);
+  border: 1px solid rgba(15,23,42,.10);
 }
 
 .table{
   width:100%;
   border-collapse: collapse;
-  background: rgba(15,25,48,.55);
+  background: #fff;
 }
 
 .table th, .table td{
   padding: 12px 12px;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(15,23,42,.08);
   font-size: 14px;
 }
 
 .table th{
   text-align:left;
-  color: rgba(232,237,246,.92);
-  background: rgba(255,255,255,.04);
+  color: rgba(15,23,42,.78);
+  background: rgba(15,23,42,.02);
   position: sticky;
   top: 0;
+  font-weight: 750;
 }
 
-.table td{
-  color: rgba(232,237,246,.92);
-}
+.table td{ color: rgba(15,23,42,.92); }
 
 .table .num{
   text-align:right;
@@ -257,17 +263,19 @@ main{
 .hint{
   margin: 10px 2px 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
+/* Chart */
 .chart-wrap{
   width:100%;
   height: 320px;
 }
 
+/* Footer */
 .site-footer{
   border-top: 1px solid var(--border);
-  background: rgba(11,18,32,.65);
+  background: rgba(255,255,255,.85);
 }
 
 .footer-inner{
@@ -281,6 +289,7 @@ main{
 
 .muted{ color: var(--muted); }
 
+/* About profile layout */
 .profile{
   display:grid;
   grid-template-columns: 1fr 320px;
@@ -294,33 +303,26 @@ main{
   align-items:center;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
-  color: rgba(232,237,246,.92);
-  font-size: 14px;
+  border: 1px solid rgba(15,23,42,.10);
+  background: rgba(37,99,235,.06);
+  color: rgba(15,23,42,.90);
+  font-size: 13px;
+  font-weight: 650;
 }
 
 .kv{
   display:grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 130px 1fr;
   gap: 10px;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(15,23,42,.08);
 }
 
 .kv:last-child{ border-bottom:none; }
 
 @media (max-width: 900px){
-  .form-grid{
-    grid-template-columns: 1fr;
-  }
-  .actions{
-    justify-content:flex-start;
-  }
-  .grid-2{
-    grid-template-columns: 1fr;
-  }
-  .profile{
-    grid-template-columns: 1fr;
-  }
+  .form-grid{ grid-template-columns: 1fr; }
+  .actions{ justify-content:flex-start; }
+  .grid-2{ grid-template-columns: 1fr; }
+  .profile{ grid-template-columns: 1fr; }
 }

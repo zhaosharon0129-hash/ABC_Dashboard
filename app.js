@@ -1,10 +1,7 @@
-// ABC Logistics Inventory Command Center
-// Client-side inventory tracker with localStorage + Chart.js
-
 const STORAGE_KEY = "abc_inventory_items_v1";
 const LOW_STOCK_THRESHOLD = 10;
 
-let items = []; // { name: "Pallets", qty: 25 }
+let items = [];
 let chart = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -17,13 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("inventoryForm");
   const clearAllBtn = document.getElementById("clearAllBtn");
 
-  if (form) {
-    form.addEventListener("submit", onAddItem);
-  }
-
-  if (clearAllBtn) {
-    clearAllBtn.addEventListener("click", onClearAll);
-  }
+  if (form) form.addEventListener("submit", onAddItem);
+  if (clearAllBtn) clearAllBtn.addEventListener("click", onClearAll);
 });
 
 function setYearFooter() {
@@ -31,12 +23,8 @@ function setYearFooter() {
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 }
 
-function getMessageEl() {
-  return document.getElementById("message");
-}
-
 function showMessage(text, type) {
-  const el = getMessageEl();
+  const el = document.getElementById("message");
   if (!el) return;
 
   el.textContent = text || "";
@@ -52,42 +40,23 @@ function normalizeName(name) {
 
 function validateInputs(rawName, rawQty) {
   const name = rawName.trim();
+  if (!name) return { ok: false, message: "Item name cannot be empty." };
 
-  // Item name cannot be empty
-  if (!name) {
-    return { ok: false, message: "Item name cannot be empty." };
-  }
-
-  // Quantity must be a positive number: no negatives, no zero, no NaN
-  // Because input type=number can still deliver "" or "e" or similar depending on browser.
   const qty = Number(rawQty);
-
-  if (!Number.isFinite(qty)) {
-    return { ok: false, message: "Quantity must be a valid number." };
-  }
-
-  if (!Number.isInteger(qty)) {
-    // Optional constraint: force integer inventory counts (common for logistics)
-    return { ok: false, message: "Quantity must be a whole number." };
-  }
-
-  if (qty <= 0) {
-    return { ok: false, message: "Quantity must be a positive number (greater than 0)." };
+  if (!Number.isFinite(qty) || !Number.isInteger(qty) || qty <= 0) {
+    return { ok: false, message: "Quantity must be a positive whole number." };
   }
 
   return { ok: true, name, qty };
 }
 
-function onAddItem(event) {
-  event.preventDefault();
+function onAddItem(e) {
+  e.preventDefault();
 
   const nameInput = document.getElementById("itemName");
   const qtyInput = document.getElementById("quantity");
 
-  const rawName = nameInput ? nameInput.value : "";
-  const rawQty = qtyInput ? qtyInput.value : "";
-
-  const validated = validateInputs(rawName, rawQty);
+  const validated = validateInputs(nameInput.value, qtyInput.value);
   if (!validated.ok) {
     showMessage(validated.message, "error");
     return;
@@ -98,7 +67,7 @@ function onAddItem(event) {
 
   const duplicate = items.some(i => normalizeName(i.name) === nameKey);
   if (duplicate) {
-    showMessage("Duplicate item detected (case-insensitive). Please use a different name.", "error");
+    showMessage("Duplicate item detected (case-insensitive).", "error");
     return;
   }
 
@@ -109,10 +78,8 @@ function onAddItem(event) {
 
   showMessage(`Added "${name}" with quantity ${qty}.`, "success");
 
-  // Reset inputs
-  if (nameInput) nameInput.value = "";
-  if (qtyInput) qtyInput.value = "";
-  if (nameInput) nameInput.focus();
+  nameInput.value = "";
+  qtyInput.value = "";
 }
 
 function onClearAll() {
@@ -124,32 +91,16 @@ function onClearAll() {
 }
 
 function saveToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch (e) {
-    // localStorage can fail (privacy settings, quota, etc.)
-    showMessage("Warning: Unable to save to localStorage in this browser.", "error");
-  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
 function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      items = [];
-      return;
-    }
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) {
-      // Basic shape validation
-      items = parsed
-        .filter(x => x && typeof x.name === "string" && Number.isFinite(Number(x.qty)))
-        .map(x => ({ name: x.name, qty: Number(x.qty) }));
-    } else {
-      items = [];
-    }
-  } catch {
-    items = [];
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+
+  const parsed = JSON.parse(raw);
+  if (Array.isArray(parsed)) {
+    items = parsed.map(x => ({ name: x.name, qty: Number(x.qty) }));
   }
 }
 
@@ -160,29 +111,16 @@ function renderTable() {
   tbody.innerHTML = "";
 
   if (items.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 2;
-    td.textContent = "No items yet. Add inventory above.";
-    td.style.color = "rgba(232,237,246,.75)";
-    td.style.padding = "14px 12px";
-    tr.appendChild(td);
-    tbody.appendChild(tr);
+    tbody.innerHTML = `<tr><td colspan="2">No items yet.</td></tr>`;
     return;
   }
 
   for (const item of items) {
     const tr = document.createElement("tr");
-
-    const tdName = document.createElement("td");
-    tdName.textContent = item.name;
-
-    const tdQty = document.createElement("td");
-    tdQty.textContent = String(item.qty);
-    tdQty.className = "num";
-
-    tr.appendChild(tdName);
-    tr.appendChild(tdQty);
+    tr.innerHTML = `
+      <td>${item.name}</td>
+      <td class="num">${item.qty}</td>
+    `;
     tbody.appendChild(tr);
   }
 }
@@ -197,33 +135,36 @@ function initChart() {
     type: "bar",
     data: {
       labels: [],
-      datasets: [
-        {
-          label: "Quantity",
-          data: [],
-          backgroundColor: [],
-          borderWidth: 0
-        }
-      ]
+      datasets: [{
+        label: "Quantity",
+        data: [],
+        backgroundColor: [],
+        borderRadius: 8
+      }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: "#64748b", font: { weight: "600" } }
+        },
         y: {
           beginAtZero: true,
-          ticks: {
-            precision: 0
-          }
+          grid: { color: "rgba(15,23,42,0.10)" },
+          ticks: { color: "#64748b", precision: 0 }
         }
       },
       plugins: {
-        legend: {
-          display: false
-        },
+        legend: { display: false },
         tooltip: {
+          backgroundColor: "rgba(15,23,42,0.92)",
+          titleColor: "#fff",
+          bodyColor: "#fff",
+          displayColors: false,
           callbacks: {
-            label: (context) => ` ${context.parsed.y}`
+            label: (context) => `Quantity: ${context.parsed.y}`
           }
         }
       }
@@ -234,15 +175,10 @@ function initChart() {
 function renderChart() {
   if (!chart) return;
 
-  const labels = items.map(i => i.name);
-  const data = items.map(i => i.qty);
-
-  // Low stock (< 10) => red; otherwise blue theme.
-  const colors = items.map(i => (i.qty < LOW_STOCK_THRESHOLD ? "#ff4d4d" : "#4f7cff"));
-
-  chart.data.labels = labels;
-  chart.data.datasets[0].data = data;
-  chart.data.datasets[0].backgroundColor = colors;
+  chart.data.labels = items.map(i => i.name);
+  chart.data.datasets[0].data = items.map(i => i.qty);
+  chart.data.datasets[0].backgroundColor =
+    items.map(i => i.qty < LOW_STOCK_THRESHOLD ? "#ef4444" : "#2563eb");
 
   chart.update();
 }

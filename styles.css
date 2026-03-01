@@ -1,1 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABC Logistics Inventory Command Center — Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
 
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar">
+      <div class="brand">
+        <span class="brand-mark">ABC</span>
+        <span class="brand-title">Logistics Inventory Command Center</span>
+      </div>
+      <ul class="nav-links">
+        <li><a class="active" href="index.html">Dashboard</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="subtext">Track inventory quantities. Low stock is automatically flagged in the chart when quantity is under 10.</p>
+
+      <form id="inventoryForm" class="form-grid" novalidate>
+        <div class="field">
+          <label for="itemName">Item name</label>
+          <input id="itemName" name="itemName" type="text" placeholder="e.g., Pallets" autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="quantity">Quantity</label>
+          <input id="quantity" name="quantity" type="number" placeholder="e.g., 25" inputmode="numeric" />
+        </div>
+
+        <div class="actions">
+          <button id="addBtn" type="submit" class="btn btn-primary">Add</button>
+          <button id="clearAllBtn" type="button" class="btn btn-ghost">Clear All</button>
+        </div>
+
+        <p id="message" class="message" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="grid-2">
+      <section class="card">
+        <h2 class="section-title">Inventory Table</h2>
+        <div class="table-wrap">
+          <table class="table" aria-label="Inventory table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th class="num">Quantity</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTbody">
+              <!-- rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+        <p class="hint">Duplicate items are blocked (case-insensitive).</p>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">Quantity Visualization</h2>
+        <div class="chart-wrap">
+          <canvas id="inventoryChart" aria-label="Inventory bar chart" role="img"></canvas>
+        </div>
+        <p class="hint">Low stock (quantity &lt; 10) turns the corresponding bar red.</p>
+      </section>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> ABC Logistics</span>
+      <span class="muted">Client-side demo (localStorage persistence)</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
